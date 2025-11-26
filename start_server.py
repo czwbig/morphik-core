@@ -1,4 +1,5 @@
 import argparse
+import asyncio
 import atexit
 import logging
 import os
@@ -247,7 +248,7 @@ def main():
     parser.add_argument(
         "--log",
         choices=["debug", "info", "warning", "error"],
-        default="info",
+        default="debug",
         help="Set the logging level",
     )
     parser.add_argument(
@@ -271,9 +272,13 @@ def main():
     # Set up logging first with specified level
     setup_logging(log_level=args.log.upper())
 
+    import torch
+    logging.warning(torch.__version__)
+    logging.warning(torch.cuda.is_available())
+
     # Check and start Redis container (unless skipped)
-    if not args.skip_redis_check:
-        check_and_start_redis()
+    # if not args.skip_redis_check:
+    #     check_and_start_redis()
 
     # Load environment variables from .env file
     load_dotenv(override=True)
@@ -319,16 +324,11 @@ def main():
     start_arq_worker()
 
     # Start server (this is blocking)
-    logging.info("Starting Uvicorn server...")
-    uvicorn.run(
-        "core.api:app",
-        host=settings.HOST,
-        port=settings.PORT,
-        loop="asyncio",
-        log_level=args.log,
-        workers=args.workers,
-        # reload=settings.RELOAD # Reload might interfere with subprocess management
-    )
+    logging.info("Starting Uvicorn server..., log level=" + args.log)
+    server_config = uvicorn.Config("core.api:app", host=settings.HOST,
+                                   port=settings.PORT,log_level=args.log,workers=args.workers,)
+    server = uvicorn.Server(server_config)
+    asyncio.run(server.serve())
 
 
 if __name__ == "__main__":

@@ -9,6 +9,7 @@ from typing import Any, Dict, List, Tuple, Union
 import numpy as np
 import torch
 from colpali_engine.models import ColQwen2_5, ColQwen2_5_Processor
+from peft import PeftModel
 from PIL.Image import Image
 from PIL.Image import open as open_image
 
@@ -25,7 +26,7 @@ _INGEST_METRICS: ContextVar[Dict[str, Any]] = ContextVar("_colpali_ingest_metric
 class ColpaliEmbeddingModel(BaseEmbeddingModel):
     def __init__(self):
         device = "mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu"
-        logger.info(f"Initializing ColpaliEmbeddingModel with device: {device}")
+        logger.error(f"Initializing ColpaliEmbeddingModel with device: {device}")
         start_time = time.time()
         attn_implementation = "eager"
         if device == "cuda":
@@ -39,13 +40,15 @@ class ColpaliEmbeddingModel(BaseEmbeddingModel):
 
         self.model = ColQwen2_5.from_pretrained(
             "tsystems/colqwen2.5-3b-multilingual-v1.0",
-            torch_dtype=torch.bfloat16,
+            torch_dtype='auto',
             device_map=device,  # Automatically detect and use available device
             attn_implementation=attn_implementation,
+            load_in_8bit=True,
         ).eval()
         self.processor: ColQwen2_5_Processor = ColQwen2_5_Processor.from_pretrained(
             "tsystems/colqwen2.5-3b-multilingual-v1.0"
         )
+
         self.settings = get_settings()
         self.mode = self.settings.MODE
         # Set batch size based on mode

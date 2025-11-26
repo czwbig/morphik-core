@@ -1,6 +1,7 @@
 import asyncio
 import contextlib
 import inspect
+import json
 import logging
 import os
 import time
@@ -30,6 +31,7 @@ from core.vector_store.dual_multivector_store import DualMultiVectorStore
 from core.vector_store.fast_multivector_store import FastMultiVectorStore
 from core.vector_store.multi_vector_store import MultiVectorStore
 from core.vector_store.pgvector_store import PGVectorStore
+from core.vector_store.vespa_multi_vector_store import VespaMultiVectorStore
 
 # Enterprise routing helpers
 from ee.db_router import get_database_for_app, get_vector_store_for_app
@@ -52,7 +54,7 @@ file_handler = RotatingFileHandler(
 file_handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
 logger.addHandler(file_handler)
 # Set logger level based on settings (diff used INFO directly)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 
 async def update_document_progress(document_service, document_id, auth, current_step, total_steps, step_name):
@@ -306,6 +308,8 @@ async def process_ingestion_job(
                             tpuf_api_key=settings.TURBOPUFFER_API_KEY,
                             namespace="public",
                         )
+                    elif settings.MULTIVECTOR_STORE_PROVIDER == "vespa":
+                        colpali_vector_store = VespaMultiVectorStore()
                     else:
                         colpali_vector_store = MultiVectorStore(uri=uri_final)
                     await asyncio.to_thread(colpali_vector_store.initialize)
@@ -1055,6 +1059,8 @@ async def startup(ctx):
             colpali_vector_store = FastMultiVectorStore(
                 uri=settings.POSTGRES_URI, tpuf_api_key=settings.TURBOPUFFER_API_KEY, namespace="public"
             )
+        elif settings.MULTIVECTOR_STORE_PROVIDER == "vespa":
+            colpali_vector_store = VespaMultiVectorStore()
         else:
             colpali_vector_store = MultiVectorStore(uri=settings.POSTGRES_URI)
         # colpali_vector_store = MultiVectorStore(uri="postgresql+asyncpg://morphik:morphik@postgres:5432/morphik")
@@ -1132,6 +1138,7 @@ def redis_settings_from_env() -> RedisSettings:
     return RedisSettings(
         host=settings.REDIS_HOST,
         port=settings.REDIS_PORT,
+        password=settings.REDIS_PASSWORD,
         database=int(url.path.lstrip("/") or 0),
         conn_timeout=5,  # Increased connection timeout (seconds)
         conn_retries=15,  # More retries for transient connection issues

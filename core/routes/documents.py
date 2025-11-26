@@ -2,6 +2,7 @@ import json
 import logging
 import os
 from typing import Any, Dict, List, Optional, Union
+from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Query, Request, UploadFile
 
@@ -377,7 +378,7 @@ async def download_document_file(document_id: str, auth: AuthContext = Depends(v
             generate(),
             media_type=doc.content_type or "application/octet-stream",
             headers={
-                "Content-Disposition": f"inline; filename=\"{doc.filename or 'document'}\"",
+                "Content-Disposition": f"inline; filename*=UTF-8''{quote(doc.filename or 'document')}",
                 "Content-Length": str(len(file_content)),
             },
         )

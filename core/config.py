@@ -124,7 +124,7 @@ class Settings(BaseSettings):
     VECTOR_STORE_DATABASE_NAME: Optional[str] = None
 
     # Multivector store configuration
-    MULTIVECTOR_STORE_PROVIDER: Literal["postgres", "morphik"] = "postgres"
+    MULTIVECTOR_STORE_PROVIDER: Literal["postgres", "morphik", "vespa"] = "postgres"
     # Enable dual ingestion to both fast and slow multivector stores during migration
     ENABLE_DUAL_MULTIVECTOR_INGESTION: bool = False
 
@@ -146,6 +146,7 @@ class Settings(BaseSettings):
     # Redis configuration
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
+    REDIS_PASSWORD: Optional[str] = None
 
     # Telemetry configuration
     TELEMETRY_ENABLED: bool = True

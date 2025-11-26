@@ -81,11 +81,13 @@ async def lifespan(app_instance: FastAPI):
         redis_settings_obj = arq.connections.RedisSettings(
             host=settings.REDIS_HOST,
             port=settings.REDIS_PORT,
+            password=settings.REDIS_PASSWORD,
         )
         logger.info(
-            "Lifespan: Redis settings for pool: host=%s, port=%s",
+            "Lifespan: Redis settings for pool: host=%s, port=%s, password=%s",
             settings.REDIS_HOST,
             settings.REDIS_PORT,
+            settings.REDIS_PASSWORD
         )
         current_redis_pool = await arq.create_pool(redis_settings_obj)
         if current_redis_pool:

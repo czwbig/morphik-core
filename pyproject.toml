@@ -3,7 +3,7 @@ name = "morphik-core"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.10,<3.13"
 dependencies = [
     "anthropic>=0.51.0",
     "arq>=0.26.3",
@@ -27,7 +27,7 @@ dependencies = [
     "itsdangerous>=2.2.0",
     "litellm>=1.69.1",
     "lxml>=5.2.2",
-    "morphik==1.0.3",
+    "morphik>1",
     "ollama>=0.4.8",
     "openai>=1.75.0",
     "opencv-python>=4.11.0.86",
@@ -52,9 +52,6 @@ dependencies = [
     "stripe>=12.1.0",
     "toml>=0.10.2",
     "tomli>=2.2.1",
-    "torch==2.5.1",
-    "torchaudio==2.5.1",
-    "torchvision==0.20.1",
     "tqdm>=4.67.1",
     "transformers==4.51.3",
     "twine>=6.1.0",
@@ -69,7 +66,12 @@ dependencies = [
     "types-boto3[s3]>=1.39.1",
     "sentry-sdk[fastapi]>=2.33.0",
     "turbopuffer>=0.5.8",
-    "colpali-engine @ git+https://github.com/illuin-tech/colpali@80fb72c9b827ecdb5687a3a8197077d0d01791b3",
+    "colpali-engine>=0.3.10",
+    "bitsandbytes>=0.48.2",
+    "ninja>=1.13.0",
+    "wheel>=0.45.1",
+    "pyvespa>=0.62.0",
+    "vespacli>=8.608.33",
 ]
 
 [dependency-groups]

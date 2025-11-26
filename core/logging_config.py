@@ -7,7 +7,7 @@ LOG_MAX_BYTES = 100 * 1024 * 1024
 LOG_BACKUP_COUNT = 10
 
 
-def setup_logging(log_level: str = "INFO"):
+def setup_logging(log_level: str = "DEBUG"):
     """Set up logging configuration.
 
     Args:
@@ -33,7 +33,7 @@ def setup_logging(log_level: str = "INFO"):
 
     # Create formatters
     console_formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+        "%(asctime)-15s %(levelname)-8s %(process)d %(filename)s:%(lineno)d %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
     )
 
     # Console handler

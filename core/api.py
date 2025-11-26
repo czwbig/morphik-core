@@ -679,6 +679,7 @@ async def query_completion(
 
         # Debug log for inline citations
         logger.debug(f"Query request - inline_citations: {request.inline_citations}")
+        logger.info(f"Query his: {json.dumps(history, ensure_ascii=False)}")
 
         result = await document_service.query(
             request.query,
@@ -773,6 +774,7 @@ async def query_completion(
                     metadata=meta,
                 ):
                     async for item in generate_stream():
+                        logger.info(f"Query response: {json.dumps(item, ensure_ascii=False)}")
                         yield item
 
             return StreamingResponse(wrapped(), media_type="text/event-stream", headers=headers)

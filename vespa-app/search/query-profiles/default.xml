@@ -1,0 +1,8 @@
+<query-profile id="default">
+    <field name="timeout">10000</field>
+    <search>
+        <maxHits>100</maxHits>
+        <maxQueryTime>2000</maxQueryTime>
+    </search>
+</query-profile>
+
