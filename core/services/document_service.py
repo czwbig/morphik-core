@@ -399,11 +399,9 @@ class DocumentService:
         if not perf_tracker:
             phase_times["search_setup"] = time.time() - search_setup_start
 
-        # Execute vector searches
-        if not perf_tracker:
-            vector_search_start = time.time()
-
+        vector_search_start = time.time()
         search_results = await asyncio.gather(*search_tasks)
+        logger.error(f"数据库计算多向量max_sim运行时间: {time.time() - vector_search_start:.4f} 秒")
         chunks: List[DocumentChunk] = []
         chunks_multivector: List[DocumentChunk] = []
         idx = 0
@@ -1178,7 +1176,7 @@ class DocumentService:
                 custom_prompt_template = prompt_overrides.query.prompt_template
             if hasattr(prompt_overrides.query, "system_prompt"):
                 custom_system_prompt = prompt_overrides.query.system_prompt
-
+        logger.debug('context_contents: %s', chunk_contents)
         request = CompletionRequest(
             query=query,
             context_chunks=chunk_contents,

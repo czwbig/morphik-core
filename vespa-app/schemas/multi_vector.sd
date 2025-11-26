@@ -1,0 +1,55 @@
+schema multi_vector {
+    document multi_vector {
+        field document_id type string {
+            indexing: summary | attribute
+            attribute: fast-search
+        }
+
+        field chunk_number type int {
+            indexing: summary | attribute
+        }
+
+        field content type string {
+            indexing: summary | index
+            index: enable-bm25
+        }
+
+        field chunk_metadata type string {
+            indexing: summary
+        }
+
+        field embeddings type tensor<float>(patch{}, x[128]) {
+            indexing: summary | attribute
+        }
+    }
+
+    fieldset default {
+        fields: content
+    }
+
+    rank-profile default {
+        first-phase {
+            expression: nativeRank(content)
+        }
+    }
+
+    rank-profile max_sim {
+        inputs {
+            query(q) tensor<float>(qpatch{}, x[128])
+        }
+
+        first-phase {
+            # MaxSim: for each query patch, find max similarity with doc patches, then sum
+            # Using sum(query * doc) which computes dot product between all query and doc patches
+            # This produces tensor<float>(qpatch{}, patch{})
+            # Then reduce max over doc patches (patch{}), then sum over query patches (qpatch{})
+            expression: sum(reduce(sum(query(q) * attribute(embeddings), x), max, patch))
+        }
+    }
+
+    rank-profile bm25 {
+        first-phase {
+            expression: bm25(content)
+        }
+    }
+}

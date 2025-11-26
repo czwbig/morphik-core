@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 
 
-def setup_logging(log_level: str = "INFO"):
+def setup_logging(log_level: str = "DEBUG"):
     """Set up logging configuration.
 
     Args:
@@ -29,7 +29,7 @@ def setup_logging(log_level: str = "INFO"):
 
     # Create formatters
     console_formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+        "%(asctime)-15s %(levelname)-8s %(process)d %(filename)s:%(lineno)d %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
     )
 
     # Console handler
@@ -38,7 +38,7 @@ def setup_logging(log_level: str = "INFO"):
     console_handler.setLevel(level)
 
     # File handler
-    file_handler = logging.FileHandler(log_dir / "morphik.log")
+    file_handler = logging.FileHandler(log_dir / "morphik.log", encoding="utf-8")
     file_handler.setFormatter(console_formatter)
     file_handler.setLevel(level)
 

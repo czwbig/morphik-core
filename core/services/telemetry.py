@@ -532,13 +532,13 @@ class TelemetryService:
                 )
 
                 # Configure the metrics reader with improved settings
-                metric_readers.append(
-                    PeriodicExportingMetricReader(
-                        otlp_metric_exporter,
-                        export_interval_millis=OTLP_SCHEDULE_DELAY_MILLIS,
-                        export_timeout_millis=OTLP_TIMEOUT * 1000,
-                    )
-                )
+                # metric_readers.append(
+                #     PeriodicExportingMetricReader(
+                #         otlp_metric_exporter,
+                #         export_interval_millis=OTLP_SCHEDULE_DELAY_MILLIS,
+                #         export_timeout_millis=OTLP_TIMEOUT * 1000,
+                #     )
+                # )
             except Exception as e:
                 print(f"Failed to configure Honeycomb metrics exporter: {str(e)}")
 

@@ -36,7 +36,7 @@ if not any(
     for handler in logger.handlers
 ):
     os.makedirs("logs", exist_ok=True)
-    _file_handler = logging.FileHandler(_multivector_log_path)
+    _file_handler = logging.FileHandler(_multivector_log_path, encoding="utf-8")
     _file_handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
     logger.addHandler(_file_handler)
 

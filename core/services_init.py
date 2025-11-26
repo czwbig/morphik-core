@@ -12,6 +12,7 @@ No behaviour has changed – only the physical location of the code.
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from pathlib import Path
 from typing import Optional
@@ -32,6 +33,7 @@ from core.vector_store.dual_multivector_store import DualMultiVectorStore
 from core.vector_store.fast_multivector_store import FastMultiVectorStore
 from core.vector_store.multi_vector_store import MultiVectorStore
 from core.vector_store.pgvector_store import PGVectorStore
+from core.vector_store.vespa_multi_vector_store import VespaMultiVectorStore
 
 logger = logging.getLogger(__name__)
 
@@ -162,6 +164,8 @@ else:
                 colpali_vector_store = FastMultiVectorStore(
                     uri=settings.POSTGRES_URI, tpuf_api_key=settings.TURBOPUFFER_API_KEY, namespace="public"
                 )
+            elif settings.MULTIVECTOR_STORE_PROVIDER == "vespa":
+                colpali_vector_store = VespaMultiVectorStore()
             else:
                 colpali_vector_store = MultiVectorStore(
                     uri=settings.POSTGRES_URI, enable_external_storage=True, auto_initialize=False
@@ -191,6 +195,8 @@ else:
                 colpali_vector_store = FastMultiVectorStore(
                     uri=settings.POSTGRES_URI, tpuf_api_key=settings.TURBOPUFFER_API_KEY, namespace="public"
                 )
+            elif settings.MULTIVECTOR_STORE_PROVIDER == "vespa":
+                colpali_vector_store = VespaMultiVectorStore()
             else:
                 colpali_vector_store = MultiVectorStore(
                     uri=settings.POSTGRES_URI, enable_external_storage=True, auto_initialize=False
