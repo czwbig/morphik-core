@@ -1,8 +1,11 @@
 schema multi_vector {
     document multi_vector {
+        # 用于唯一标识文档，支持快速过滤
         field document_id type string {
             indexing: summary | attribute
             attribute: fast-search
+            # 加上 match:word 或 match:exact 来优化查询
+            match: exact
         }
 
         field chunk_number type int {

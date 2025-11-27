@@ -376,11 +376,14 @@ class VespaMultiVectorStore(BaseVectorStore):
             logger.debug(f"Querying Vespa... {yql_query}")
             response: VespaQueryResponse = await asyncio.to_thread(
                 self.vespa_client.query,
-                yql=yql_query,
-                ranking="max_sim",
-                hits=k,
-                body={"input.query(q)": query_tensor}
+                body={
+                    "input.query(q)": query_tensor,
+                    "yql": yql_query,
+                    "ranking": "max_sim",
+                    "hits": k,
+                }
             )
+            logger.debug(f"Querying Vespa... done")
 
             if not response.is_successful():
                 logger.error(f"Query failed: {response.status_code}")
