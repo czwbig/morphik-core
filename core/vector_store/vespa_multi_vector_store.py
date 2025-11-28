@@ -368,7 +368,7 @@ class VespaMultiVectorStore(BaseVectorStore):
         if doc_ids:
             # Use matches or contains for string field matching
             # For exact match with string fields, use: document_id matches "value"
-            doc_filter = " or ".join([f'document_id matches "{doc_id}"' for doc_id in doc_ids])
+            doc_filter = " document_id in ( " + " , ".join([f'"{doc_id}"' for doc_id in doc_ids]) + " ) "
             yql_query = f"select * from {self.schema} where {doc_filter}"
 
         try:
@@ -409,6 +409,8 @@ class VespaMultiVectorStore(BaseVectorStore):
             resolved_contents = await asyncio.gather(*content_tasks, return_exceptions=True)
 
             chunks = []
+            hit_relevance_list = [hit.get("relevance", 0.0) for hit in hits]
+            logger.debug("Vespa query hits relevance scores: " + ", ".join([f"{score:.4f}" for score in hit_relevance_list]))
             for hit, resolved in zip(hits, resolved_contents):
                 try:
                     metadata = json.loads(hit.get("chunk_metadata", "{}"))
@@ -425,6 +427,8 @@ class VespaMultiVectorStore(BaseVectorStore):
                     metadata=metadata,
                     score=hit.get("relevance", 0.0),
                 )
+                if hit.get("relevance", 0.0) < 8:
+                    continue
                 chunks.append(chunk)
 
             return chunks
