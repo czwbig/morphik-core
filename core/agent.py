@@ -73,27 +73,19 @@ class MorphikAgent:
                 }
             )
 
-        content_guidelines = (
-            "for text objects, this is markdown content; for image objects, this is a description for the "
-        )
-        content_guidelines += (
-            "image, describing the exact part you want to extract from the source chunk. This description will be "
-        )
-        content_guidelines += "used to create a bounding box around the image and extract the image from the source chunk. Be as precise as possible. "
-        content_guidelines += "Use labels, diagram numbers, etc. where possible to be more precise. Please ensure that when you choose an image display "
-        content_guidelines += "object, the corresponding source is also an image."
+        content_guidelines = "对于文本对象，这是 markdown 内容；对于图像对象，这是对图像的描述，描述你想从源块中提取的确切部分。此描述将被用于在图像周围创建边界框并从源块中提取图像。请尽可能精确。在可能的情况下使用标签、图表编号等以更加精确。请确保当你选择图像显示对象时，对应的源也是图像。"
 
         example_response = """
 ```json
 [
   {
     "type": "text",
-    "content": "## Introduction to the Topic\nHere is some detailed information...",
+    "content": "## 主题介绍\n这里是一些详细信息...",
     "source": "doc123-chunk1"
   },
   {
     "type": "text",
-    "content": "This analysis shows that...",
+    "content": "这项分析表明...",
     "source": "doc456-chunk2"
   }
 ]
@@ -101,50 +93,50 @@ class MorphikAgent:
 """
         # Build bullet list based on graph mode
         bullet_parts = [
-            "- retrieve_chunks: retrieve relevant text and image chunks from the knowledge base",
-            "- retrieve_document: get full document content or metadata",
-            "- document_analyzer: analyze documents for entities, facts, summary, sentiment, or full analysis",
-            "- execute_code: run Python code in a safe sandbox",
+            "- retrieve_chunks: 从知识库中检索相关的文本和图像块",
+            "- retrieve_document: 获取完整文档内容或元数据",
+            "- document_analyzer: 分析文档中的实体、事实、摘要、情感或进行完整分析",
+            "- execute_code: 在安全沙箱中运行 Python 代码",
         ]
 
         if graph_mode == "api":
-            bullet_parts.append("- graph_api_retrieve: retrieve answers from a remote Morphik knowledge graph")
+            bullet_parts.append("- graph_api_retrieve: 从知识图谱中检索答案")
         else:
             bullet_parts.append(
-                "- knowledge_graph_query: query the knowledge graph for entities, paths, subgraphs, or list entities"
+                "- knowledge_graph_query: 查询知识图谱中的实体、路径、子图或列出实体"
             )
 
         bullet_parts.extend(
             [
-                "- list_graphs: list available knowledge graphs",
-                "- save_to_memory: save important information to persistent memory",
-                "- list_documents: list documents accessible to you",
+                "- list_graphs: 列出可用的知识图谱",
+                "- save_to_memory: 将重要信息保存到持久化内存",
+                "- list_documents: 列出你可以访问的文档",
             ]
         )
 
         bullet_lines = "\n".join(bullet_parts)
 
-        # System prompt
+        # System prompt - 系统提示词
         self.system_prompt = f"""
-You are Morphik, an intelligent research assistant. You can use the following tools to help answer user queries:
+你是三江智能知识库，一个ai助手。你可以使用以下工具来帮助回答用户查询：
 {bullet_lines}
 
-Use function calls to invoke these tools when needed. When you have gathered all necessary information,
-instead of providing a direct text response, you must return a structured response with display objects.
+在需要时使用函数调用来调用这些工具。当你收集到所有必要信息后，
+不要直接提供文本响应，而必须返回一个包含显示对象的结构化响应。
 
-Your response should be a JSON array of display objects, each with:
-1. "type": either "text" or "image"
+你的响应应该是一个 JSON 数组，每个显示对象包含：
+1. "type": "text" 或 "image"
 2. "content": {content_guidelines}
-3. "source": the source ID of the chunk where you found this information
+3. "source": 你找到此信息的块的源 ID
 
-Example response format:
+响应格式示例：
 {example_response}
 
-When you use retrieve_chunks, you'll get source IDs for each chunk. Use these IDs in your response.
-For example, if you see "Source ID: doc123-chunk4" for important information, attribute it in your response.
+当你使用 retrieve_chunks 时，你会获得每个块的源 ID。在响应中使用这些 ID。
+例如，如果你看到 "Source ID: doc123-chunk4" 标记了重要信息，请在响应中注明来源。
 
-Always attribute the information to its specific source. Break your response into multiple display objects
-when citing different sources. Use markdown formatting for text content to improve readability.
+始终将信息归属到其特定来源。当引用不同来源时，将响应拆分为多个显示对象。
+使用 markdown 格式化文本内容以提高可读性。
 """.strip()
 
     async def _execute_tool(self, name: str, args: dict, auth: AuthContext, source_map: dict):

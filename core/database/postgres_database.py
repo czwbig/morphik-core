@@ -975,7 +975,7 @@ class PostgresDatabase(BaseDatabase):
 
                 result = await session.execute(query)
                 doc_ids = [row[0] for row in result.all()]
-                logger.debug(f"Found document IDs: {doc_ids}")
+                logger.debug(f"Found document IDs: {len(doc_ids)}")
                 return doc_ids
 
         except InvalidMetadataFilterError as exc:

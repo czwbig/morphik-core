@@ -373,7 +373,7 @@ class VespaMultiVectorStore(BaseVectorStore):
 
         try:
             # Use pyvespa's query method (run in thread pool since Vespa client is sync)
-            logger.debug(f"Querying Vespa... {yql_query}")
+            logger.debug(f"Querying Vespa... {yql_query[:500]}")
             response: VespaQueryResponse = await asyncio.to_thread(
                 self.vespa_client.query,
                 body={

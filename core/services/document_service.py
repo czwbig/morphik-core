@@ -1176,7 +1176,7 @@ class DocumentService:
                 custom_prompt_template = prompt_overrides.query.prompt_template
             if hasattr(prompt_overrides.query, "system_prompt"):
                 custom_system_prompt = prompt_overrides.query.system_prompt
-        logger.debug('context_contents: %s', chunk_contents)
+        logger.debug('context_contents: %s', chunk_contents[:500])
         request = CompletionRequest(
             query=query,
             context_chunks=chunk_contents,

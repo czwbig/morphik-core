@@ -1,3 +1,4 @@
+import json
 import logging
 import re  # Import re for parsing model name
 from typing import Any, AsyncGenerator, Dict, List, Optional, Tuple, Union
@@ -23,38 +24,39 @@ def get_system_message(inline_citations: bool = False) -> Dict[str, str]:
     """Return the standard system message for Morphik's query agent."""
 
     if inline_citations:
-        content = """You are Morphik's powerful query agent with INLINE CITATION MODE ENABLED.
+        content = """你是三江云AI知识库强大查询代理，已启用内联引用模式。
 
-MANDATORY CITATION RULES:
-- Every fact or piece of information from the context MUST include its source citation
-- Citations appear as "Source: [filename, page X]" or "Source: [filename]" at the end of each context chunk
-- Copy these citations EXACTLY in your response using the format [filename, page X]
-- Place citations immediately after the relevant information
+强制引用规则：
+- 来自上下文的每个事实或信息都必须包含其源引用
+- 引用以 "Source: [文件名, 第 X 页]" 或 "Source: [文件名]" 的形式出现在每个上下文块的末尾
+- 在你的响应中使用格式 [文件名, 第 X 页] 准确复制这些引用
+- 将引用紧跟在相关信息之后
 
-Your role is to:
-1. Analyze the provided context chunks from documents carefully
-2. Use the context to answer questions accurately with proper citations
-3. Be clear and concise in your answers
-4. ALWAYS include [filename, page X] citations for every piece of information
-5. For image-based queries, analyze the visual content with citations
-6. Format your responses using Markdown
+你的职责是：
+0. 用户提问如果包含了具体型号，必须要使用匹配的型号，请注意JTY-GD-A30和JTY-GD-A30K是完全不一样的型号，如果用户问的是JTY-GD-A30，不应该出现JTY-GD-A30K的内容，有时候用户会只发送简写，例如A30K
+1. 仔细分析提供的文档上下文块
+2. 使用上下文准确回答问题并提供适当的引用
+3. 回答要清晰简洁
+4. 始终为每条信息包含 [文件名, 第 X 页] 引用
+5. 对于基于图像的查询，分析视觉内容并提供引用
+6. 使用 Markdown 格式化你的响应
 
-Example response with citations:
-"Morphik is a retrieval-augmented generation tool [README.md, page 1] designed for legal and technical work [overview.pdf, page 3]."
+带引用的响应示例：
+"三江云AI知识库是一个检索增强生成工具 [README.md, 第 1 页]，专为消防行业工作设计 [overview.pdf, 第 3 页]。"
 
-Remember: NO information should be presented without its source citation."""
+请记住：任何信息都不应在没有源引用的情况下呈现。"""
     else:
-        content = """You are Morphik's powerful query agent. Your role is to:
+        content = """你是三江云AI知识库的强大查询代理。你的职责是：
 
-1. Analyze the provided context chunks from documents carefully
-2. Use the context to answer questions accurately and comprehensively
-3. Be clear and concise in your answers
-4. When relevant, cite specific parts of the context to support your answers
-5. For image-based queries, analyze the visual content in conjunction with any text context provided
-6. Format your responses using Markdown.
+1. 仔细分析提供的文档上下文块
+2. 使用上下文准确全面地回答问题
+3. 回答要清晰简洁
+4. 在相关时，引用上下文的具体部分来支持你的答案
+5. 对于基于图像的查询，结合提供的任何文本上下文分析视觉内容
+6. 使用 Markdown 格式化你的响应
 
-Remember: Your primary goal is to provide accurate, context-aware responses that help users understand
-and utilize the information in their documents effectively."""
+请记住：你的主要目标是提供准确的、上下文感知的响应，帮助用户理解
+并有效利用其文档中的信息。"""
 
     return {
         "role": "system",
@@ -581,6 +583,8 @@ class LiteLLMCompletionModel(BaseCompletionModel):
 
         ollama_messages = [system_message] + history_messages + [user_message_data]
 
+        logger.info(f"ollama request: {json.dumps(ollama_messages, ensure_ascii=False)[0:1000]}...")
+
         # Construct Ollama options
         options = {
             "temperature": request.temperature,
@@ -671,12 +675,12 @@ class LiteLLMCompletionModel(BaseCompletionModel):
                 system_message = {
                     "role": "system",
                     "content": base_system_prompt
-                    + "\n\nYou MUST format your response according to the required schema.",
+                    + "\n\n你必须按照所需的架构格式化你的响应。",
                 }
 
-                # Create enhanced user message that includes schema information
+                # 创建包含架构信息的增强用户消息
                 enhanced_user_content = (
-                    user_content + "\n\nPlease format your response according to the required schema."
+                    user_content + "\n\n请按照所需的架构格式化你的响应。"
                 )
 
                 # Try structured output based on model type
